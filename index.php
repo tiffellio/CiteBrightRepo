@@ -46,20 +46,30 @@
     <h2>Ask My LLM</h2>
       <?php
         if (isset($_GET['answer']) && isset($_GET['sources'])) {
-            $answer = urldecode($_GET['answer']);
-            $sources = json_decode(urldecode($_GET['sources']), true);
+          $answer = urldecode($_GET['answer']);
+          $sources = json_decode(urldecode($_GET['sources']), true);
 
-            echo "<div class='answer-box'>";
-            echo "<h2>LLM Answer</h2>";
-            echo "<p>$answer</p>";
-            echo "</div>";
+          foreach ($sources as $label => $data) {
+              $answer = str_replace(
+                  "[$label]",
+                  "<span class='highlight' data-source=\"$label\">[$label]</span>",
+                  $answer
+              );
+          }
 
-            echo "<h3>Sources:</h3><ul>";
-            foreach ($sources as $label => $url) {
-                echo "<li><a href='$url' target='_blank'>$label</a></li>";
-            }
-            echo "</ul>";
-        }
+          echo "<div class='answer-box'>";
+          echo "<h2>LLM Answer</h2>";
+          echo "<p>$answer</p>";
+          echo "</div>";
+
+          echo "<h3>Sources:</h3><ul>";
+          foreach ($sources as $label => $data) {
+              $url = htmlspecialchars($data['url'], ENT_QUOTES);
+              echo "<li><a href='$url' target='_blank'>$label</a></li>";
+          }
+          echo "</ul>";
+      }
+
 
     ?>
 
@@ -72,6 +82,31 @@
     <form method="get" action="index.php" style="margin-top:10px;">
       <button type="submit">Clear</button>
     </form>
+
+    <div id="popup" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; padding:10px; border-radius:6px; max-width:300px; z-index:9999;"></div>
+
+
+    <!-- POP UP HTML and JS -->
+    <script>
+      const sourceData = <?php echo json_encode($sources); ?>;
+      const popup = document.getElementById('popup');
+
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('highlight')) {
+          const key = e.target.getAttribute('data-source');
+          const source = sourceData[key];
+          if (!source) return;
+
+          popup.innerHTML = `<strong>${source.title}</strong><br>${source.text}<br><a href="${source.url}" target="_blank">Visit Source</a>`;
+          popup.style.display = 'block';
+          popup.style.top = (e.pageY + 10) + 'px';
+          popup.style.left = (e.pageX + 10) + 'px';
+        } else {
+          popup.style.display = 'none';
+        }
+      });
+    </script>
+
 
   </body>
 </html>

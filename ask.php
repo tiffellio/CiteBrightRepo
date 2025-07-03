@@ -72,7 +72,12 @@ $sourceMap = [];
 $sourceIndex = 1;
 foreach (array_slice($searchData['items'], 0, $maxSources) as $item) {
     $link = $item['link'];
-    $sourceMap["Source $sourceIndex"] = $link;
+    $sourceMap["Source $sourceIndex"] = [
+        "url" => $link,
+        "title" => $title,
+        "text" => substr(strip_tags($text), 0, 300) // short snippet
+    ];
+
     $sourceIndex++;
 }
 
@@ -118,11 +123,12 @@ foreach (array_slice($searchData['items'], 0, $maxSources) as $item) {
     $full = $response['choices'][0]['message']['content'];
 
     // replace source x with tooltip highlights
-    foreach ($sourceMap as $sourceTag => $url) {
-        $tooltip = htmlspecialchars($url, ENT_QUOTES);
+    foreach ($sourceMap as $sourceTag => $data) {
+        $tooltip = htmlspecialchars($data['url'], ENT_QUOTES);
         $highlight = "<span class='highlight' title='$tooltip'>[$sourceTag]</span>";
         $full = str_replace("[$sourceTag]", $highlight, $full);
     }
+
 
     //simulates the source highlighting by splitting text in half:
 
