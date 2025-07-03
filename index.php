@@ -18,12 +18,11 @@
         margin-top: 10px;
       }
 
-      .highlight {
-          background-color: yellow;
-          cursor: help;
-          border-radius: 4px;
-          padding: 0 3px;
-      }
+      .highlight-source-1 { background-color: #ffd1dc; }  /* pastel pink */
+      .highlight-source-2 { background-color: #c1f0f6; }  /* pastel blue */
+      .highlight-source-3 { background-color: #d5f5d5; }  /* pastel green */
+      .highlight-source-4 { background-color: #f5e1ff; }  /* pastel purple */
+      .highlight-source-5 { background-color: #fff7c2; }  /* pastel yellow */
 
     .gap1 {
       background-color: #d1eaff;
@@ -50,11 +49,14 @@
           $sources = json_decode(urldecode($_GET['sources']), true);
 
           foreach ($sources as $label => $data) {
-              $answer = str_replace(
-                  "[$label]",
-                  "<span class='highlight' data-source=\"$label\">[$label]</span>",
-                  $answer
-              );
+            $sourceNumber = (int) filter_var($label, FILTER_SANITIZE_NUMBER_INT);
+            $className = "highlight highlight-source-" . $sourceNumber;
+
+            $answer = str_replace(
+                "[$label]",
+                "<span class='$className' data-source=\"$label\">[$label]</span>",
+                $answer
+            );
           }
 
           echo "<div class='answer-box'>";

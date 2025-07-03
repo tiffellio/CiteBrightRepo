@@ -70,17 +70,43 @@ foreach (array_slice($searchData['items'], 0, $maxSources) as $item) {
 // build source map for highlights
 $sourceMap = [];
 $sourceIndex = 1;
+$context = "";
+
 foreach (array_slice($searchData['items'], 0, $maxSources) as $item) {
+    $title = $item['title'];
     $link = $item['link'];
+
+    $html = @file_get_contents($link);
+    $text = '';
+
+    if ($html !== false) {
+        libxml_use_internal_errors(true);
+        $doc = new DOMDocument();
+        $doc->loadHTML($html);
+        $xpath = new DOMXPath($doc);
+        $nodes = $xpath->query('//p');
+
+        foreach ($nodes as $node) {
+            $text .= $node->nodeValue . "\n";
+        }
+
+        $mainText = substr(strip_tags($text), 0, 2000);
+    } else {
+        $mainText = "[Could not fetch content]";
+    }
+
+    // Append to context
+    $context .= "[Source $sourceIndex] $title: $mainText ($link)\n\n";
+
+    // Build source map
     $sourceMap["Source $sourceIndex"] = [
         "url" => $link,
         "title" => $title,
-        "text" => substr(strip_tags($text), 0, 300) // short snippet
+        "text" => substr($mainText, 0, 300)
     ];
 
     $sourceIndex++;
 }
-
 
     // *********************************************************
 
@@ -103,10 +129,33 @@ foreach (array_slice($searchData['items'], 0, $maxSources) as $item) {
             ["role" => "user", "content" => "What's the capital of France?"],
             ["role" => "assistant", "content" => "The capital of France is Paris. [Source 1]"],
 
+                // Example 2: multi-source citation
+            [
+                "role" => "user",
+                "content" => "Tell me some facts about the moon."
+            ],
+            [
+                "role" => "assistant",
+                "content" =>
+                    "The moon orbits the Earth approximately every 27.3 days. [Source 2] " .
+                    "It causes ocean tides on Earth due to its gravitational pull. [Source 3] " .
+                    "The surface of the moon is covered in regolith, a layer of dust and rock. [Source 4]"
+            ],
+
+            // Example 3: no known answer
+            [
+                "role" => "user",
+                "content" => "What is the square root of invisible ink?"
+            ],
+            [
+                "role" => "assistant",
+                "content" => "I don't know."
+            ],
+
             // Actual user prompt
             ["role" => "user", "content" => $prompt]
         ],
-        "temperature" => 0.7 //controls how creative answers are
+        "temperature" => 0.3 //controls how creative answers are
     ];
 
     //use curl to POST to LM studio:
