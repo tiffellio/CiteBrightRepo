@@ -18,11 +18,29 @@
         margin-top: 10px;
       }
 
-      .highlight-source-1 { background-color: #ffd1dc; }  /* pastel pink */
-      .highlight-source-2 { background-color: #c1f0f6; }  /* pastel blue */
-      .highlight-source-3 { background-color: #d5f5d5; }  /* pastel green */
-      .highlight-source-4 { background-color: #f5e1ff; }  /* pastel purple */
-      .highlight-source-5 { background-color: #fff7c2; }  /* pastel yellow */
+      .highlight-source-1 { 
+        background-color: #ffd1dc; 
+      }  
+      
+      
+      .highlight-source-2 { 
+        background-color: #c1f0f6; 
+      }  
+      
+      
+      .highlight-source-3 { 
+        background-color: #d5f5d5; 
+      }  
+      
+
+      .highlight-source-4 { 
+        background-color: #f5e1ff; 
+      }  
+      
+
+      .highlight-source-5 {
+        background-color: #fff7c2; 
+      }  
 
     .gap1 {
       background-color: #d1eaff;
@@ -42,9 +60,10 @@
   </head>
 
   <body>
-    <h2>Ask My LLM</h2>
+    <h2>CiteBright</h2>
       <?php
         if (isset($_GET['answer']) && isset($_GET['sources'])) {
+
           $answer = urldecode($_GET['answer']);
           $sources = json_decode(urldecode($_GET['sources']), true);
 
@@ -60,15 +79,16 @@
           }
 
           echo "<div class='answer-box'>";
-          echo "<h2>LLM Answer</h2>";
           echo "<p>$answer</p>";
           echo "</div>";
 
-          echo "<h3>Sources:</h3><ul>";
+          echo "<h5>Retreived Sources:</h5><ul>";
+
           foreach ($sources as $label => $data) {
               $url = htmlspecialchars($data['url'], ENT_QUOTES);
               echo "<li><a href='$url' target='_blank'>$label</a></li>";
           }
+
           echo "</ul>";
       }
 
